@@ -543,7 +543,6 @@ public class MapTypeTest extends AbstractFunctionalTest {
     assertEquals(nested2.get("field2"), result.getNested2().getField2());
   }
 
-  @Ignore("Started failing for some reason. Tests very exotic functionality.")
   @Test
   public void testNestedCustomMap() {
     mapper = getMapper("mapMapping4.xml");

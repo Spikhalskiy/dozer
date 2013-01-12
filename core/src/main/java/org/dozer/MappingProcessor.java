@@ -38,6 +38,8 @@ import org.dozer.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -419,8 +421,8 @@ public class MappingProcessor implements Mapper {
       return mapMap(srcObj, (Map<?, ?>) srcFieldValue, fieldMap, destObj);
     }
     if (fieldMap instanceof MapFieldMap && destFieldType.equals(Object.class)) {
-      // TODO: find better place for this logic. try to encapsulate in FieldMap?
-      destFieldType = fieldMap.getDestHintContainer() != null ? fieldMap.getDestHintContainer().getHint() : srcFieldClass;
+      ClassMap classMap = getClassMapByFieldMap(fieldMap, srcFieldClass);
+      destFieldType = classMap != null ? classMap.getDestClassToMap() : srcFieldClass;
     }
 
     if (primitiveConverter.accepts(srcFieldClass) || primitiveConverter.accepts(destFieldType)) {
@@ -498,17 +500,8 @@ public class MappingProcessor implements Mapper {
           destFieldType = destHintType;
         }
       }
-      // Check to see if explicit map-id has been specified for the field
-      // mapping
-      String mapId = fieldMap.getMapId();
 
-      Class<?> targetClass;
-      if (fieldMap.getDestHintContainer() != null && fieldMap.getDestHintContainer().getHint() != null) {
-        targetClass = fieldMap.getDestHintContainer().getHint();
-      } else {
-        targetClass = destFieldType;
-      }
-      classMap = getClassMap(srcFieldValue.getClass(), targetClass, mapId, true);
+      classMap = getClassMapByFieldMap(fieldMap, srcFieldValue.getClass(), destFieldType, true);
 
       BeanCreationDirective creationDirective = new BeanCreationDirective(srcFieldValue, classMap.getSrcClassToMap(), classMap.getDestClassToMap(),
               destFieldType, classMap.getDestClassBeanFactory(), classMap.getDestClassBeanFactoryId(),
@@ -836,8 +829,9 @@ public class MappingProcessor implements Mapper {
       // if we already evaluated the dest type, use it
       return prevDestEntryType;
     } else if (srcValue != null) {
-      // if there's no dest hint for the dest obj, take the src hint
-      return fieldMap.getDestHintType(srcValue.getClass());
+      // if there's no dest hint for the dest obj, take the hint for src or src if no hint
+      Class<?> hintType = fieldMap.getDestHintType(srcValue.getClass());
+      return hintType != null ? hintType : srcValue.getClass();
     }
     throw new MappingException("Unable to determine type for value '" + srcValue + "'. Use hints or generic collections.");
   }
@@ -1077,7 +1071,44 @@ public class MappingProcessor implements Mapper {
     return result;
   }
 
-  private ClassMap getClassMap(Class<?> srcClass, Class<?> destClass, String mapId, boolean canResultDestClassBeSubClass) {
+  //TODO move follow code into another class
+
+  /**
+   * Detect ClassMap and return existed
+   * @param fieldMap fieldMap for mapId and hints
+   * @param srcFieldType type of the source field
+   * @return found or created <code>ClassMap</code>
+   */
+  private ClassMap getClassMapByFieldMap(@Nonnull FieldMap fieldMap, @Nonnull Class<?> srcFieldType) {
+    Class<?> targetClass = fieldMap.getDestHintType(srcFieldType);
+
+    if (targetClass == null) {
+      if (fieldMap.getMapId() != null) {
+        return classMappings.findByMapId(srcFieldType, fieldMap.getMapId());
+      }
+
+      return null;
+    }
+
+    return getClassMapByFieldMap(fieldMap, srcFieldType, targetClass, true);
+  }
+
+  /**
+   * Detect ClassMap and return existed or create a default
+   * @param fieldMap fieldMap for mapId and hints
+   * @param srcFieldType type of the source field
+   * @param predefinedDestinationFieldType type of destination field, can be null - try to find in this case, but no one default mapping will be created
+   * @param canResultDestClassBeSubClass enable automatic polymorphism to detect user defined config or implementation of abstract class
+   * @return found or created <code>ClassMap</code>
+   */
+  private ClassMap getClassMapByFieldMap(@Nonnull FieldMap fieldMap, @Nonnull Class<?> srcFieldType, @Nonnull Class<?> predefinedDestinationFieldType, boolean canResultDestClassBeSubClass) {
+    Class<?> targetClass = fieldMap.getDestHintType(srcFieldType);
+    if (targetClass == null) targetClass = predefinedDestinationFieldType;
+
+    return getClassMap(srcFieldType, targetClass, fieldMap.getMapId(), canResultDestClassBeSubClass);
+  }
+
+  private ClassMap getClassMap(@Nonnull Class<?> srcClass, @Nonnull Class<?> destClass, @Nullable String mapId, boolean canResultDestClassBeSubClass) {
     ClassMap mapping = classMappings.find(srcClass, destClass, mapId, canResultDestClassBeSubClass);
 
     if (mapping == null) {

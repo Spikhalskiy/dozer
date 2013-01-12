@@ -136,6 +136,24 @@ public class ClassMappings {
     return mapping;
   }
 
+  /**
+   *
+   * @return ClassMap by srcClass and mapId
+   */
+  public ClassMap findByMapId(Class<?> srcClass, String mapId) {
+    for (Entry<String, ClassMap> entry : classMappings.entrySet()) {
+      ClassMap classMap = entry.getValue();
+      if (StringUtils.equals(classMap.getMapId(), mapId)
+              && classMap.getSrcClassToMap().isAssignableFrom(srcClass)) {
+        return classMap;
+      }
+    }
+
+    // If map-id was specified and mapping was not found, then fail
+    MappingUtils.throwMappingException("Class mapping not found by map-id: " + mapId);
+    return null;
+  }
+
   // Look for an interface mapping
   private ClassMap findInterfaceAndInheritanceMapping(Class<?> destClass, Class<?> srcClass, String mapId, boolean canResultDestClassBeSubClass) {
     ClassMap interfaceMappingClassMap = null;

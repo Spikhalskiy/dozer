@@ -32,6 +32,7 @@ import org.dozer.util.MappingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -96,7 +97,8 @@ public abstract class FieldMap implements Cloneable {
     propDescriptor.setPropertyValue(runtimeDestObj, destFieldValue, this);
   }
 
-  public Class<?> getDestHintType(Class<?> runtimeSrcClass) {
+  @Nullable
+  public Class<?> getDestHintType(@Nullable Class<?> runtimeSrcClass) {
     if (getDestHintContainer() != null) {
       if (getSrcHintContainer() != null) {
         return getDestHintContainer().getHint(runtimeSrcClass, getSrcHintContainer().getHints());
@@ -104,7 +106,7 @@ public abstract class FieldMap implements Cloneable {
         return getDestHintContainer().getHint();
       }
     } else {
-      return runtimeSrcClass;
+      return null;
     }
   }
 
