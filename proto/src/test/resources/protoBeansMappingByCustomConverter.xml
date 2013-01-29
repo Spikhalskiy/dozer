@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://dozer.sourceforge.net http://dozer.sourceforge.net/schema/beanmapping.xsd">
+
+  <mapping wildcard="false">
+    <class-a>org.dozer.vo.proto.TestObject</class-a>
+    <class-b>org.dozer.vo.proto.ProtoTestObjects.SimpleProtoTestObject</class-b>
+    <field custom-converter="org.dozer.functional_tests.ProtoBeansWithCustomConverterTest.CustomConv">
+      <a>this</a>
+      <b>this</b>
+    </field>
+  </mapping>
+
+  <mapping wildcard="false">
+    <class-a>org.dozer.vo.proto.TestObjectContainer</class-a>
+    <class-b>org.dozer.vo.proto.ProtoTestObjects.ProtoTestObjectWithNestedProtoObject</class-b>
+
+    <field>
+      <a>one</a>
+      <b>one</b>
+    </field>
+
+    <field custom-converter="org.dozer.functional_tests.ProtoBeansWithCustomConverterTest.CustomConv">
+      <a>nested</a>
+      <b>nestedObject</b>
+    </field>
+  </mapping>
+</mappings>
