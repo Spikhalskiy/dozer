@@ -32,6 +32,7 @@ import org.dozer.vo.Car;
 import org.dozer.vo.CustomConverterWrapper;
 import org.dozer.vo.CustomConverterWrapperPrime;
 import org.dozer.vo.DehydrateTestObject;
+import org.dozer.vo.Fruit;
 import org.dozer.vo.FurtherTestObject;
 import org.dozer.vo.FurtherTestObjectPrime;
 import org.dozer.vo.HintedOnly;
@@ -590,4 +591,20 @@ public class MapperTest extends AbstractFunctionalTest {
 		assertTrue(top.getListToCollection().contains(orange2));
 	}
 
+  @Test
+  public void testListOfListToListOfList() throws Exception {
+    List<Class<? extends Fruit>> listList = newInstance(ArrayList.class);
+    listList.add(Orange.class);
+    listList.add(Apple.class);
+    TestObject to = newInstance(TestObject.class);
+    to.setListOfClasses(listList);
+
+    TestObjectPrime top = mapper.map(to, TestObjectPrime.class);
+    assertEquals(Orange.class, top.getListOfClasses().get(0));
+    assertEquals(Apple.class, top.getListOfClasses().get(1));
+
+    TestObject toDest = mapper.map(top, TestObject.class);
+    assertEquals(Orange.class, toDest.getListOfClasses().get(0));
+    assertEquals(Apple.class, toDest.getListOfClasses().get(1));
+  }
 }
