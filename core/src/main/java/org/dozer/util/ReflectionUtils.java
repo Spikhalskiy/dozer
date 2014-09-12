@@ -421,18 +421,14 @@ public final class ReflectionUtils {
   public static Class<?> determineClassOfType(Type type) {
     Class<?> result = null;
     if (type != null) {
-      Class<? extends Type> typeClass = type.getClass();
-      if (ParameterizedType.class.isAssignableFrom(typeClass)) {
-        result = (Class<?>) ((ParameterizedType) type).getRawType();
-      } else if (Class.class.isAssignableFrom(typeClass)) {
+      if (type instanceof Class) {
         result = (Class<?>) type;
-      } else if (WildcardType.class.isAssignableFrom(typeClass)) {
+      } else if (type instanceof ParameterizedType) {
+        result = (Class<?>) ((ParameterizedType) type).getRawType();
+      } else if (type instanceof WildcardType) {
         WildcardType wildcardType = (WildcardType) type;
-        Type[] lowerBounds = wildcardType.getLowerBounds();
         Type[] upperBounds = wildcardType.getUpperBounds();
-        if (lowerBounds.length != 0) {
-          result = determineClassOfType(lowerBounds[0]);
-        } else if (upperBounds.length != 0) {
+        if (upperBounds.length != 0) {
           result = determineClassOfType(upperBounds[0]);
         } else {
           result = Object.class;

@@ -16,7 +16,6 @@
 package org.dozer.vo;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -78,7 +77,6 @@ public class TestObjectPrime extends BaseTestObject {
   private String excludeMeOneWay = "excludeMeOneWay";
   private String throwAllowedExceptionOnMapPrime;
   private String throwNonAllowedExceptionOnMapPrime;
-  private List<Class<? extends Fruit>> listOfClasses = new ArrayList<Class<? extends Fruit>>();
 
   public long[] getPrimitiveArray() {
     return primitiveArray;
@@ -418,11 +416,4 @@ public class TestObjectPrime extends BaseTestObject {
 		this.listToCollection = listToCollection;
 	}
 
-  public List<Class<? extends Fruit>> getListOfClasses() {
-    return listOfClasses;
-  }
-
-  public void setListOfClasses(List<Class<? extends Fruit>> listOfClasses) {
-    this.listOfClasses = listOfClasses;
-  }
 }
